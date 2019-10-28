@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
@@ -20,29 +21,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val stringCall: Call<String> = service.getListRepositories("limpatprananda")
-        stringCall.enqueue(object : Callback<String>{
-            override fun onFailure(call: Call<String>, t: Throwable) {
+        val call = service.getListRepositories("limpatprananda")
+        call.enqueue(object : Callback<List<Repository>> {
+            override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
                 resultText.text = "onFailure ${t.message}"
             }
 
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                val responseString = response.body()
-
-                var tempString: String = responseString ?: "null"
-                responseString?.let {
-                    tempString = ""
-                    val repositories = JsonParser().parse(responseString).asJsonArray
-
-                    for (item in repositories){
-                        tempString += "full_name : ${item.asJsonObject.get("full_name")}\n"
+            override fun onResponse(
+                call: Call<List<Repository>>,
+                response: Response<List<Repository>>
+            ) {
+                val listRepositories = response.body()
+                var tempString = listRepositories?.size.toString() ?: "null"
+                listRepositories?.let {
+                    for (item in listRepositories){
+                        tempString += "fullName : ${item.fullName}\n"
                     }
-                    tempString += "\n\n"
-                    repositories[0].asJsonObject.addProperty("full_name", "Dynamically change")
-                    tempString += repositories.toString()
                 }
-                resultText.text = tempString
+                tempString += "\n\n"
+                listRepositories?.get(0)?.fullName = "Dinamically change"
+                resultText.text = tempString + listRepositories.toString()
             }
         })
     }
 }
+
+data class Repository(
+    val id: Int,
+    val name: String,
+    @SerializedName("full_name")
+    var fullName: String
+)
