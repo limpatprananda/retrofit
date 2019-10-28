@@ -37,6 +37,9 @@ dependencies {
     //Retrofit Gson Converter
     implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
 
+    //Gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+
     //Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
 

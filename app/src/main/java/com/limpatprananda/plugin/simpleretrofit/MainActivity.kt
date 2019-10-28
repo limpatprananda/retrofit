@@ -41,6 +41,11 @@ class MainActivity : AppCompatActivity() {
                 tempString += "\n\n"
                 listRepositories?.get(0)?.fullName = "Dinamically change"
                 resultText.text = tempString + listRepositories.toString()
+
+                val gson = GsonBuilder()
+                    .setPrettyPrinting()
+                    .create()
+                Timber.i(gson.toJson(listRepositories))
             }
         })
     }
