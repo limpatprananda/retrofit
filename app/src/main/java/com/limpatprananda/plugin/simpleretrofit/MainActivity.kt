@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
@@ -28,21 +29,20 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 val responseString = response.body()
 
-                val gsonBuilder = GsonBuilder()
-                gsonBuilder.setPrettyPrinting()
+                var tempString: String = responseString ?: "null"
+                responseString?.let {
+                    tempString = ""
+                    val repositories = JsonParser().parse(responseString).asJsonArray
 
-                val gson = gsonBuilder.create()
-                val repositories = gson.fromJson(responseString, Array<Repository>::class.java).toList()
-
-                repositories[1].full_name = "Change dynamicly"
-                resultText.text = "onResponse ${repositories[0].full_name} : (to_json) -> ${gson.toJson(repositories)}"
+                    for (item in repositories){
+                        tempString += "full_name : ${item.asJsonObject.get("full_name")}\n"
+                    }
+                    tempString += "\n\n"
+                    repositories[0].asJsonObject.addProperty("full_name", "Dynamically change")
+                    tempString += repositories.toString()
+                }
+                resultText.text = tempString
             }
         })
     }
 }
-
-data class Repository(
-    val id: Int,
-    val name: String,
-    var full_name: String
-)
