@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -30,7 +33,14 @@ class MainActivity : AppCompatActivity() {
             ) {
                 val listRepositories = response.body()
                 listRepositories?.get(0)?.fullName = "Dynamicly Change"
-                resultText.text = "onResponse ${listRepositories.toString()}"
+
+                val moshi = Moshi.Builder()
+                    .add(KotlinJsonAdapterFactory())
+                    .build()
+                val type = Types.newParameterizedType(List::class.java, Repository::class.java)
+                val jsonAdapter = moshi.adapter<List<Repository>>(type)
+
+                resultText.text = "onResponse ${jsonAdapter.toJson(listRepositories)}"
             }
         })
     }
